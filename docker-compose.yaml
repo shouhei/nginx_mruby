@@ -1,0 +1,17 @@
+admin:
+  image: shouhei/alpine-ruby-puma
+  volumes:
+    - "$PWD/admin:/workspace"
+    - "$PWD/info:/workspace/info"
+nginx:
+  image: matsumotory/ngx-mruby:latest
+  volumes:
+    - "$PWD/nginx/docker_info_parser.rb:/root/docker_info_parser.rb"
+    - "$PWD/nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf"
+    - "$PWD/info:/root/info"
+  expose:
+    - "80"
+  ports:
+    - "80:80"
+  links:
+    - admin:admin

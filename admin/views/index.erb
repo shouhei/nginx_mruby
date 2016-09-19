@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <h1>Dynamic Reverse Proxy</h1>
+        <div class="container">
+          <div class="row">
+            <div class="center-block">
+              <table class="table">
+                  <tr>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>URL</th>
+                    <th>AppPort</th>
+                    <th>Status</th>
+                  </tr>
+                  <% @info.each do |con| %>
+                    <% next if con["Names"] == @proxy_container["Names"] %>
+                    <tr>
+                      <td><%= con["Names"][0].split("/")[1] %></td>
+                      <td><%= con["Image"]%></td>
+                      <td><div class="app-url <%= con["Names"][0].split("/")[1] %>" ></div></td>
+                      <td><input class="app-port <%= con["Names"][0].split("/")[1] %>" type="text" value=""/></td>
+                      <td><%= con["Status"]%></td>
+                    </tr>
+                  <% end %>
+              </table>
+            </div>
+          </div>
+        </div>
+        <script>
+         $(function(){
+             var host = "<%= @docker_host%>:<%= @proxy_container["Ports"].find{|p| p["PrivatePort"] == 80}["PublicPort"]%>"
+             $(".app-port").on('change', function(e){
+                 var target = e.currentTarget.getAttribute("class").split(" ")[1];
+                 var link = '<a target="_blank" class="btn btn-primary" href="http://' + host + "/" + target + ":" + e.target.value + '/">アプリケーションを開く</a>'
+                 $(".app-url." + target).html(link);
+             });
+         });
+        </script>
+    </body>
+</html>
